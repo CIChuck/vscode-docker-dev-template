@@ -21,13 +21,12 @@ def get_response(input_prompt):
 image_base = "/workspaces/vs-docker-github/images/"
 # UI - Loads app images
 # responder_icon = "/Users/charlesrussell/Library/Mobile Documents/com~apple~CloudDocs/Media/Projects/si-chat/av1.jpg"
-responder_icon = "/workspaces/vscode-python-medium/tests/av1.jpg"
+responder_icon = image_base + "av1.jpg"
 
 # prompter_icon = "/Users/charlesrussell/Library/Mobile Documents/com~apple~CloudDocs/Media/Projects/si-chat/ci.jpg"
-prompter_icon = "/workspaces/vscode-python-medium/tests/ci.jpg"
-
+prompter_icon = image_base + "ci.jpg"
 # hdr_image = "/Users/charlesrussell/Library/Mobile Documents/com~apple~CloudDocs/Media/Projects/si-chat/sandbox.jpg"
-hdr_image = "/workspaces/vscode-python-medium/tests/sandbox.jpg" 
+hdr_image = image_base + "sandbox.jpg" 
 st.image(hdr_image, output_format="auto")
 
 # UI Reset and restart the  conversation
@@ -90,7 +89,7 @@ with tab1:
 # UI - Data Management Tab
 with tab2:
     # data_hdr_image = "/Users/charlesrussell/Library/Mobile Documents/com~apple~CloudDocs/Media/Projects/si-chat/DataHeader.jpg"
-    data_hdr_image = "/workspaces/vscode-python-medium/tests/DataHeader.jpg"
+    data_hdr_image = image_base + "DataHeader.jpg"
     st.image(data_hdr_image, output_format="auto")
 
 

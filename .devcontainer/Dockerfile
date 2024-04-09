@@ -20,6 +20,6 @@ COPY requirements.txt set_python_env.sh /requirements/
 RUN bash ./requirements/set_python_env.sh $PYTHON_ENV
 
 # Production Streamlit Run
-# streamlit run ./tests/st-test2.py  --server.address 127.0.0.1 --server.port 8051
+# streamlit run ./tests/st-vslidate.py  --server.address 127.0.0.1 --server.port 8051
 
 

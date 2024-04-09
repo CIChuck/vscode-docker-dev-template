@@ -18,7 +18,7 @@ def get_response(input_prompt):
     return resp_generator.generate(100, 150)  # Generate up to 150 characters of Lorem Ipsum
 
 
-image_base = "/workspaces/vs-docker-github/images/"
+image_base = "/workspaces/vsc-docker-github/images/"
 # UI - Loads app images
 # responder_icon = "/Users/charlesrussell/Library/Mobile Documents/com~apple~CloudDocs/Media/Projects/si-chat/av1.jpg"
 responder_icon = image_base + "av1.jpg"

@@ -1,6 +1,5 @@
 import random
 
-
 class LoremIpsumGenerator:
     def __init__(self):
         self.text = ("Lorem ipsum dolor sit amet, consectetur adipiscing elit, "

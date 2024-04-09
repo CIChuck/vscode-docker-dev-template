@@ -29,3 +29,9 @@ class LoremIpsumGenerator:
             return repeated_text[:length]
 
 
+import datetime
+def time_stamp():
+    current_date_and_time = datetime.datetime.now()
+    # print(current_date_and_time)
+    formatted_date_and_time = current_date_and_time.strftime("%Y-%m-%d %H:%M:%S")
+    return f"Current date and time:{formatted_date_and_time}"

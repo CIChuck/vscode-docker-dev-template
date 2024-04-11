@@ -35,3 +35,46 @@ def time_stamp():
     # print(current_date_and_time)
     formatted_date_and_time = current_date_and_time.strftime("%Y-%m-%d %H:%M:%S")
     return f"Current date and time:{formatted_date_and_time}"
+
+import base64
+from PIL import Image
+import io
+
+def encode_image_to_base64(image_filename):
+    # Assert the filename ends with one of the accepted extensions
+    assert image_filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif')), "File format must be JPEG, GIF, or PNG"
+
+    try:
+        # Open the image file
+        with Image.open(image_filename) as img:
+            # Assert that the image is successfully loaded (not None)
+            assert img is not None, "Image file could not be loaded"
+
+            # Create a buffer to hold image bytes
+            buffered = io.BytesIO()
+            # Get the file format (JPEG, GIF, PNG) and assert it's valid
+            img_format = img.format
+            assert img_format in ['JPEG', 'GIF', 'PNG'], "Image format not recognized"
+
+            # Save image to the buffer in its original format
+            img.save(buffered, format=img_format)
+            # Encode the buffer to Base64
+            img_base64 = base64.b64encode(buffered.getvalue())
+            # Decode and return the Base64 encoded string
+            base64_string = img_base64.decode('utf-8')
+            # Assert the result is a non-empty string
+            assert base64_string, "Base64 string conversion failed"
+            return base64_string
+    except IOError:
+        # Handle exceptions raised by PIL when it cannot open the image
+        raise IOError("Failed to load the image. The file may be corrupted or the path is incorrect.")
+    except Exception as e:
+        # Handle other unforeseen exceptions during the image processing
+        raise Exception(f"An error occurred while processing the image: {str(e)}")
+
+# Example usage (This will only work if you have a valid image path)
+# try:
+#     encoded_image = encode_image_to_base64('path_to_your_image.jpg')
+#     print(encoded_image)
+# except Exception as error:
+#     print(f"An error occurred: {error}")

@@ -4,7 +4,7 @@ import numpy as np
 import os
 from dotenv import load_dotenv
 from openai import OpenAI
-
+from openai import AzureOpenAI
 class OAI: 
 
     def __init__(self, model = "gpt-4-0125-preview", systemPrompt="You are a helpful assistant."):
@@ -150,8 +150,30 @@ class OAI:
         #Return text, full response
         return self.response.choices[0].message.content
 
+class AzureOAI(OAI):
 
+    def __init__(self, model = "cigpt4", systemPrompt="You are a helpful assistant."):
 
+        load_dotenv()
+
+        self.client = AzureOpenAI(
+            azure_endpoint = "https://aistudioenhanced.openai.azure.com/", 
+            api_key=os.getenv("AZURE_OPENAI_KEY"),  
+            api_version="2024-02-15-preview"
+        )
+        
+        self.model = model
+        self.systemPrompt = {"role": "system", "content": systemPrompt}
+
+        self.tot_tokens_in = 0
+        self.tokens_in = 0
+
+        self.tot_tokens_out =0
+        self.tokens_out = 0
+
+        self.response = ""
+
+        load_dotenv()
 
 class Anthropic:
 

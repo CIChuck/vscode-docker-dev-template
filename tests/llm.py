@@ -5,7 +5,16 @@ import os
 from dotenv import load_dotenv
 from openai import OpenAI
 from openai import AzureOpenAI
+
 class OAI: 
+    @classmethod
+    def list_models(self): 
+    a = openai 
+    oai_models = []
+    for model in a.models.list():
+        oai_models.append(model.id)
+
+    return oai_models
 
     def __init__(self, model = "gpt-4-0125-preview", systemPrompt="You are a helpful assistant."):
 
@@ -32,13 +41,7 @@ class OAI:
     def get_client(self):
         return self.client
     
-    def list_models(self): 
-        a = openai 
-        oai_models = []
-        for model in a.models.list():
-            oai_models.append(model.id)
-
-        return oai_models
+   
     
     def get_model(self):
         return self.model
@@ -100,18 +103,27 @@ class OAI:
     
     def get_JSON_response(self, prompt, temperature = .5, max_tokens = 50):
         
-        suffix = " Return content in json format. "
+        #adjust prompt
+        suffix = "You output all responses in JSON format and nothing else."
+        msg = prompt + suffix
+
+        #adjust system prompt
+        content = self.systemPrompt["content"] + suffix
+        newsysprompt = {"role": "system", "content": content}
+
+        print(newsysprompt)
 
         try:
             self.response = self.client.chat.completions.create(
                 model = self.model,
-                response_format={ "type": "json_object" },
+                response_format={"type": "json_object"},
                 max_tokens = max_tokens,
                 temperature = temperature,
+                stream=False,
                 messages=[
-                    self.systemPrompt,
-                    {"role": "user", "content": prompt + suffix}
-                    ]
+                    newsysprompt,
+                    {"role": "user", "content": msg}
+                    ],
             )
             
         except openai.error.Timeout as e:

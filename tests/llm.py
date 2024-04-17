@@ -7,14 +7,15 @@ from openai import OpenAI
 from openai import AzureOpenAI
 
 class OAI: 
+
     @classmethod
     def list_models(self): 
-    a = openai 
-    oai_models = []
-    for model in a.models.list():
-        oai_models.append(model.id)
+        a = openai 
+        oai_models = []
+        for model in a.models.list():
+            oai_models.append(model.id)
 
-    return oai_models
+        return oai_models
 
     def __init__(self, model = "gpt-4-0125-preview", systemPrompt="You are a helpful assistant."):
 
@@ -41,8 +42,6 @@ class OAI:
     def get_client(self):
         return self.client
     
-   
-    
     def get_model(self):
         return self.model
     
@@ -62,7 +61,8 @@ class OAI:
                 messages=[
                     self.systemPrompt,
                     {"role": "user", "content": prompt}
-                    ]
+                    ],
+                stream=False
             )
         except openai.error.Timeout as e:
             #Handle timeout error, e.g. retry or log
@@ -186,6 +186,35 @@ class AzureOAI(OAI):
         self.response = ""
 
         load_dotenv()
+
+class Databricks(OAI):
+
+    def __init__(self, model = "databricks-dbrx-instruct", 
+                        systemPrompt="You are a helpful assistant."):
+
+        load_dotenv()
+        
+        DATABRICKS_TOKEN = os.environ.get('DATABRICKS_TOKEN')
+        
+        self.client = OpenAI(
+            api_key=DATABRICKS_TOKEN,
+            base_url="https://adb-7510379599932114.14.azuredatabricks.net/serving-endpoints"
+        )
+        
+        self.model = model
+        self.systemPrompt = {"role": "system", "content": systemPrompt }
+
+        self.tot_tokens_in = 0
+        self.tokens_in = 0
+
+        self.tot_tokens_out =0
+        self.tokens_out = 0
+
+        self.response = ""
+
+        load_dotenv()
+
+
 
 class Anthropic:
 

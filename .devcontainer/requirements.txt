@@ -9,12 +9,12 @@ langgraph
 langsmith
 langchain-cli
 llama-index
-weaviate-client==3.26.2
-dspy-ai==2.1.9
+weaviate-client
+dspy-ai
 pyautogen
 anthropic
 google-generativeai
 streamlit
 tqdm
-chromadb
-arize-phoenix[evals]
+cohere
+arize-phoenix

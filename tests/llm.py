@@ -167,15 +167,14 @@ class AzureOAI(OAI):
     def __init__(self, model = "cigpt4", systemPrompt="You are a helpful assistant."):
 
         load_dotenv()
-
-        self.client = AzureOpenAI(
-            azure_endpoint = "https://aistudioenhanced.openai.azure.com/", 
-            api_key=os.getenv("AZURE_OPENAI_KEY"),  
-            api_version="2024-02-15-preview"
-        )
-        
         self.model = model
         self.systemPrompt = {"role": "system", "content": systemPrompt}
+
+        self.client = AzureOpenAI(
+                azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT"), 
+                api_key=os.getenv("AZURE_OPENAI_KEY"),  
+                api_version=os.getenv("AZURE_API_VERSION")
+            )
 
         self.tot_tokens_in = 0
         self.tokens_in = 0
@@ -184,8 +183,6 @@ class AzureOAI(OAI):
         self.tokens_out = 0
 
         self.response = ""
-
-        load_dotenv()
 
 class Databricks(OAI):
 
@@ -214,7 +211,27 @@ class Databricks(OAI):
 
         load_dotenv()
 
+class LLmStudio(OAI):
 
+    def __init__(self, 
+                 model = "QuantFactory/Meta-Llama-3-8B-Instruct-GGUF", 
+                 systemPrompt="You are a helpful assistant."):
+
+        load_dotenv()
+
+        self.client = OpenAI(base_url="http://Colossus:8080/v1", 
+                             api_key="lm-studio") 
+     
+        self.model = model
+        self.systemPrompt = {"role": "system", "content": systemPrompt}
+
+        self.tot_tokens_in = 0
+        self.tokens_in = 0
+
+        self.tot_tokens_out =0
+        self.tokens_out = 0
+
+        self.response = ""          
 
 class Anthropic:
 

@@ -214,7 +214,8 @@ class Databricks(OAI):
 class LLmStudio(OAI):
 
     def __init__(self, 
-                 model = "QuantFactory/Meta-Llama-3-8B-Instruct-GGUF", 
+                 #model = "QuantFactory/Meta-Llama-3-8B-Instruct-GGUF", 
+                 model = "MaziyarPanahi/Meta-Llama-3-70B-Instruct-GGUF",
                  systemPrompt="You are a helpful assistant."):
 
         load_dotenv()

@@ -40,6 +40,12 @@ import base64
 from PIL import Image
 import io
 
+# Example usage (This will only work if you have a valid image path)
+# try:
+#     encoded_image = encode_image_to_base64('path_to_your_image.jpg')
+#     print(encoded_image)
+# except Exception as error:
+#     print(f"An error occurred: {error}")
 def encode_image_to_base64(image_filename):
     # Assert the filename ends with one of the accepted extensions
     assert image_filename.lower().endswith(('.png', '.jpg', '.jpeg', '.gif')), "File format must be JPEG, GIF, or PNG"
@@ -78,3 +84,10 @@ def encode_image_to_base64(image_filename):
 #     print(encoded_image)
 # except Exception as error:
 #     print(f"An error occurred: {error}")
+
+from IPython.display import Markdown, display
+
+def pretty_print(text, color, fontsize):
+    d = f"""{fontsize} <p> <span style="color:{color}"><em>{text}</em></span></p>"""
+    display(Markdown(d))
+

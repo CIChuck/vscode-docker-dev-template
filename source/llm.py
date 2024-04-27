@@ -6,8 +6,54 @@ from dotenv import load_dotenv
 from openai import OpenAI
 from openai import AzureOpenAI
 
-class OAI: 
+from abc import ABC, abstractmethod
 
+
+class LLM(ABC):
+
+    def __init__(self, model, client, systemPrompt) -> None:
+        self.model = model
+        self.client = client
+        self.systemPrompt = systemPrompt
+
+        self.tot_tokens_in = 0
+        self.tokens_in = 0
+
+        self.tot_tokens_out =0
+        self.tokens_out = 0
+
+        self.response = ""
+
+        self.formattedSystemPrompt = {"role": "system", "content": systemPrompt}
+
+        # clss requires key/endpoints etc
+        load_dotenv()
+    
+    def get_client(self):
+        return self.client
+
+    def get_model(self):
+        return self.model
+    
+    def get_full_response(self):
+        return self.response
+
+    def change_model(self, mod_name):
+        self.model = mod_name
+
+    @abstractmethod
+    def __accounting__(self, response):
+        pass
+
+    @abstractmethod
+    def get_chatresponse(self, prompt, temperature = .5, max_tokens = 50):
+        pass
+
+    @abstractmethod
+    def get_JSON_response(self, prompt, temperature = .5, max_tokens = 50):
+        pass
+
+class OAI(LLM): 
     @classmethod
     def list_models(self): 
         a = openai 
@@ -17,7 +63,7 @@ class OAI:
 
         return oai_models
 
-    def __init__(self, model = "gpt-4-0125-preview", systemPrompt="You are a helpful assistant."):
+    def ___oldinit__(self, model = "gpt-4-0125-preview", systemPrompt="You are a helpful assistant."):
 
         self.client = OpenAI()
         self.model = model
@@ -33,6 +79,10 @@ class OAI:
 
         load_dotenv()
 
+    def __init__(self, model = "gpt-4-0125-preview", systemPrompt="You are a helpful assistant."):
+        
+        super().__init__(model=model, client=OpenAI(), systemPrompt=systemPrompt)
+       
     def __accounting__(self, response):
         self.tot_tokens_in += response.usage.prompt_tokens
         self.tokens_in = response.usage.prompt_tokens
@@ -51,15 +101,18 @@ class OAI:
     def change_model(self, mod_name):
         self.model = mod_name
 
+    # should be genericized for supporting kwargs
     def get_chatresponse(self, prompt, temperature = .5, max_tokens = 50):
 
+        #print(self.systemPrompt, self.model)
+        
         try:
             self.response = self.client.chat.completions.create(
                 model = self.model,
                 max_tokens = max_tokens,
                 temperature = temperature,
                 messages=[
-                    self.systemPrompt,
+                    self.formattedSystemPrompt,
                     {"role": "user", "content": prompt}
                     ],
                 stream=False
@@ -100,15 +153,15 @@ class OAI:
         #Return text, token counts
         return self.response.choices[0].message.content
     
-    
+    #likely valid only for OpenAI advanced models
     def get_JSON_response(self, prompt, temperature = .5, max_tokens = 50):
         
-        #adjust prompt
-        suffix = "You output all responses in JSON format and nothing else."
+        #adjust prompt to insure JSON output - required by the API
+        suffix = " You output all responses in JSON format and nothing else."
         msg = prompt + suffix
 
         #adjust system prompt
-        content = self.systemPrompt["content"] + suffix
+        content = self.formattedSystemPrompt["content"] + suffix
         newsysprompt = {"role": "system", "content": content}
 
         print(newsysprompt)
@@ -167,22 +220,13 @@ class AzureOAI(OAI):
     def __init__(self, model = "cigpt4", systemPrompt="You are a helpful assistant."):
 
         load_dotenv()
-        self.model = model
-        self.systemPrompt = {"role": "system", "content": systemPrompt}
-
-        self.client = AzureOpenAI(
+        client = AzureOpenAI(
                 azure_endpoint = os.getenv("AZURE_OPENAI_ENDPOINT"), 
                 api_key=os.getenv("AZURE_OPENAI_KEY"),  
                 api_version=os.getenv("AZURE_API_VERSION")
             )
-
-        self.tot_tokens_in = 0
-        self.tokens_in = 0
-
-        self.tot_tokens_out =0
-        self.tokens_out = 0
-
-        self.response = ""
+        super().__init__(model=model, systemPrompt=systemPrompt)
+        self.client = client
 
 class Databricks(OAI):
 
@@ -190,50 +234,31 @@ class Databricks(OAI):
                         systemPrompt="You are a helpful assistant."):
 
         load_dotenv()
-        
-        DATABRICKS_TOKEN = os.environ.get('DATABRICKS_TOKEN')
-        
-        self.client = OpenAI(
-            api_key=DATABRICKS_TOKEN,
-            base_url="https://adb-7510379599932114.14.azuredatabricks.net/serving-endpoints"
+    
+        #DATABRICKS_TOKEN = os.environ.get('DATABRICKS_TOKEN')
+        client = OpenAI(
+            api_key=os.environ.get('DATABRICKS_TOKEN'),
+            base_url=os.environ.get('DATABRICKS_ENDPOINT')
         )
+        super().__init__(model=model, systemPrompt=systemPrompt)
+        self.client = client
         
-        self.model = model
-        self.systemPrompt = {"role": "system", "content": systemPrompt }
-
-        self.tot_tokens_in = 0
-        self.tokens_in = 0
-
-        self.tot_tokens_out =0
-        self.tokens_out = 0
-
-        self.response = ""
-
-        load_dotenv()
-
 class LLmStudio(OAI):
 
-    def __init__(self, 
-                 #model = "QuantFactory/Meta-Llama-3-8B-Instruct-GGUF", 
-                 model = "MaziyarPanahi/Meta-Llama-3-70B-Instruct-GGUF",
-                 systemPrompt="You are a helpful assistant."):
+    def __init__(self, model=None, systemPrompt="You are a helpful assistant."):
 
         load_dotenv()
+        #print(os.environ.get('LLMSTUDIO_ENDPOINT'),os.environ.get('LLMSTUDIO_API_KEY'))
+        
+        client = OpenAI(
+                    base_url=os.environ.get('LLMSTUDIO_ENDPOINT'),
+                    api_key=os.environ.get('LLMSTUDIO_API_KEY')
+                )
 
-        self.client = OpenAI(base_url="http://Colossus:8080/v1", 
-                             api_key="lm-studio") 
-     
-        self.model = model
-        self.systemPrompt = {"role": "system", "content": systemPrompt}
+        super().__init__(model=model, systemPrompt=systemPrompt)
 
-        self.tot_tokens_in = 0
-        self.tokens_in = 0
-
-        self.tot_tokens_out =0
-        self.tokens_out = 0
-
-        self.response = ""          
-
+        self.client = client
+                     
 class Anthropic:
 
     def __init__(self, model = "claude-3-opus-20240229", systemPrompt="You are a helpful assistant."):

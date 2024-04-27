@@ -1,5 +1,5 @@
 import streamlit as st
-import utilities
+import source.utilities as utilities
 
 # -------------------------------
 # Helper Functions

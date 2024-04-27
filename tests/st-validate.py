@@ -1,5 +1,5 @@
 import streamlit as st
-import source.utilities as utilities
+import source.agent_studio.utils.utilities as utilities
 
 # -------------------------------
 # Helper Functions

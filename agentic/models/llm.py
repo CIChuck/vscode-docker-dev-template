@@ -1,3 +1,4 @@
+
 import openai
 import anthropic
 import numpy as np
@@ -5,6 +6,9 @@ import os
 from dotenv import load_dotenv
 from openai import OpenAI
 from openai import AzureOpenAI
+import google.generativeai as genai
+
+
 
 from abc import ABC, abstractmethod
 
@@ -62,21 +66,6 @@ class OAI(LLM):
 
         return oai_models
 
-    def ___oldinit__(self, model = "gpt-4-0125-preview", systemPrompt="You are a helpful assistant."):
-
-        self.client = OpenAI()
-        self.model = model
-        self.systemPrompt = {"role": "system", "content": systemPrompt}
-
-        self.tot_tokens_in = 0
-        self.tokens_in = 0
-
-        self.tot_tokens_out =0
-        self.tokens_out = 0
-
-        self.response = ""
-
-        load_dotenv()
 
     def __init__(self, model = "gpt-4-0125-preview", systemPrompt="You are a helpful assistant."):
         
@@ -324,3 +313,65 @@ class Anthropic:
         #Return text, token counts
         return response.content[0].text, response.usage.input_tokens, response.usage.output_tokens
     
+class Google(LLM):
+
+    def __init__(self, model = "gemini-pro", systemPrompt="You are a helpful assistant."):
+        
+        load_dotenv()
+        GOOGLE_API_KEY = os.getenv('GOOGLE_API_KEY')
+        genai.configure(api_key=GOOGLE_API_KEY)
+
+        super().__init__(model=model, client=genai.GenerativeModel(model), systemPrompt=systemPrompt)
+        self.client = genai.GenerativeModel(model)
+
+    def __accounting__(self, response):
+        pass
+        """
+        self.tot_tokens_in += response.usage.prompt_tokens
+        self.tokens_in = response.usage.prompt_tokens
+        self.tot_tokens_out += response.usage.completion_tokens
+        self.tokens_out = response.usage.completion_tokens
+        """
+
+    def get_chatresponse(self, prompt, temperature = .5, max_tokens = 50):
+        
+        generation_config = {
+            "temperature": temperature,
+            "top_p": 1,
+            "top_k": 1,
+            "max_output_tokens": max_tokens
+        }
+
+        safety_settings = [
+            {
+                "category": "HARM_CATEGORY_HARASSMENT",
+                "threshold": "BLOCK_MEDIUM_AND_ABOVE"
+            },
+            {
+                "category": "HARM_CATEGORY_HATE_SPEECH",
+                "threshold": "BLOCK_MEDIUM_AND_ABOVE"
+            },
+            {
+                "category": "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                "threshold": "BLOCK_MEDIUM_AND_ABOVE"
+            },
+            {
+                "category": "HARM_CATEGORY_DANGEROUS_CONTENT",
+                "threshold": "BLOCK_HIGH_AND_ABOVE"
+            }
+        ]
+        
+        """self.client = genai.GenerativeModel(model_name="gemini-1.5-pro-latest",
+                              generation_config=generation_config,
+                              safety_settings=safety_settings)
+        """
+
+        prompt_parts = [
+        prompt,
+        ]
+
+        self.response = self.client.generate_content(prompt_parts)
+        return self.response.text
+    
+    def get_JSON_response(self, prompt, temperature=0.5, max_tokens=50):
+        pass

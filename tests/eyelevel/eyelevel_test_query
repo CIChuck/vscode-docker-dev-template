@@ -1,0 +1,43 @@
+import os
+from pprint import pprint
+from groundx import Groundx, ApiException
+from dotenv import load_dotenv
+from utilities import list_files, get_bucket, create_bucket
+from time import sleep
+
+load_dotenv()
+EYE_LEVEL_API_KEY = os.getenv('EYE_LEVEL_API_KEY')
+
+groundx = Groundx(
+    #api_key='08011f65-3be8-4c90-8edb-e7921febea7c'
+    api_key=EYE_LEVEL_API_KEY,
+
+)
+
+bname = "medicare_corpus"
+bn = get_bucket(groundx, bname)
+
+if not bn:
+    print("Bucket Not Found...You're Fucked:")
+else:
+    b_id = bn
+    print(f"Bucket {b_id} Found")
+
+response = groundx.search.content(
+    id=b_id,
+    n=1,
+    verbosity=0,
+    query="What is the HL7 837 transaction used for?"
+)
+resp = response.body["search"]
+
+llmText = resp["text"]
+
+#results = resp["results"]
+
+print(llmText,"\n\n\n")
+print(resp)
+
+
+
+
